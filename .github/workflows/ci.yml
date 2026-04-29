@@ -9,16 +9,18 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # Align Actions runner JS with GitHub’s Node 24 transition (see GitHub changelog 2025-09).
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
+      # Omit version — resolves exact pnpm from package.json "packageManager" (avoids ERR_PNPM_BAD_PM_VERSION vs pinned Action version).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
 
       - name: Install dependencies
