@@ -20,7 +20,7 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "dist": "electron-vite build && electron-builder --dir --win --x64",
-    "dist:installer": "electron-vite build && electron-builder --win nsis --x64",
+    "dist:installer": "electron-vite build && electron-builder --win nsis --x64 --publish never",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.web.json && tsc --noEmit -p tsconfig.node.json"
   },
