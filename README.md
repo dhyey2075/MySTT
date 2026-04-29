@@ -58,6 +58,8 @@ Never commit API keys. The app can also store a key locally via the UI (see [`ap
 
 The installer build needs **`apps/desktop/resources/icons/logo.png`** (see [`resources/icons/README.md`](apps/desktop/resources/icons/README.md)). Without it, electron-builder fails during packaging.
 
+On GitHub Actions, the release workflow pins **Python 3.11** for **node-gyp** when rebuilding native deps such as **`uiohook-napi`** (`distutils` was removed in Python 3.12+, which breaks older node-gyp).
+
 ## Repository layout
 
 | Path                                               | Role                                                       |
