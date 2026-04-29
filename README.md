@@ -49,6 +49,15 @@ export OPENAI_API_KEY=sk-...
 
 Never commit API keys. The app can also store a key locally via the UI (see [`apps/desktop/src/main/secrets.ts`](apps/desktop/src/main/secrets.ts)).
 
+## CI and GitHub Releases
+
+| Workflow                                                                         | When                                                                                                                                                                                           |
+| -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml)                           | Push / PR to `main` or `master` — ESLint, typecheck, tests                                                                                                                                     |
+| [`.github/workflows/release-windows.yml`](.github/workflows/release-windows.yml) | Push to `main` or `master` — builds **Windows NSIS installer** and attaches **`MySTT-*-Setup.exe`** to a new [**Release**](https://github.com/mystt/MySTT/releases) (tag `build-<run_number>`) |
+
+The installer build needs **`apps/desktop/resources/icons/logo.png`** (see [`resources/icons/README.md`](apps/desktop/resources/icons/README.md)). Without it, electron-builder fails during packaging.
+
 ## Repository layout
 
 | Path                                               | Role                                                       |
