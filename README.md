@@ -65,6 +65,7 @@ On GitHub Actions, the release workflow pins **Python 3.11** for **node-gyp** wh
 | Path                                               | Role                                                       |
 | -------------------------------------------------- | ---------------------------------------------------------- |
 | [`apps/desktop`](apps/desktop)                     | Electron main/preload/renderer                             |
+| [`apps/landing`](apps/landing)                     | Marketing website (Vite + Tailwind)                         |
 | [`packages/core-pipeline`](packages/core-pipeline) | Transcription pipeline, downloads, whisper CLI integration |
 | [`packages/ipc-contract`](packages/ipc-contract)   | Shared IPC types and Zod schemas                           |
 | [`packages/ui`](packages/ui)                       | Shared UI primitives                                       |
