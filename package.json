@@ -1,0 +1,34 @@
+{
+  "name": "mystt",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mystt/MySTT.git"
+  },
+  "homepage": "https://github.com/mystt/MySTT#readme",
+  "bugs": {
+    "url": "https://github.com/mystt/MySTT/issues"
+  },
+  "packageManager": "pnpm@9.14.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @mystt/desktop dev",
+    "build": "pnpm --filter @mystt/desktop build",
+    "dist": "pnpm --filter @mystt/desktop dist",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm --filter @mystt/core-pipeline test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "typescript-eslint": "^8.21.0"
+  }
+}

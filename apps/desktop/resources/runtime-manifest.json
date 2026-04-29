@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "targets": {
+    "win32-x64": {
+      "ffmpeg": {
+        "url": "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "sizeBytes": 83886080,
+        "format": "zip",
+        "extractExeRelativePath": "bin/ffmpeg.exe"
+      },
+      "whisper": {
+        "url": "https://github.com/ggml-org/whisper.cpp/releases/download/v1.8.4/whisper-bin-x64.zip",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "sizeBytes": 3661871,
+        "format": "zip",
+        "extractZipDirectoryPrefix": "Release/"
+      }
+    }
+  },
+  "models": {
+    "tiny": {
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "sizeBytes": 75767715
+    },
+    "base": {
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "sizeBytes": 147951465
+    },
+    "small": {
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "sizeBytes": 487601967
+    }
+  }
+}
