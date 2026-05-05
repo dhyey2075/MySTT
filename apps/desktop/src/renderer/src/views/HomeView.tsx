@@ -36,6 +36,18 @@ export function HomeView(props: {
     [settings, setSettings]
   )
 
+  const saveTerminalNl = useCallback(
+    async (enabled: boolean) => {
+      const api = window.mystt
+      if (!settings || !api) return
+      const payload = { ...settings } as Record<string, unknown>
+      delete payload.hasOpenAiApiKey
+      const next = await api.setSettings({ ...payload, terminalNlCommandEnabled: enabled })
+      setSettings(next)
+    },
+    [settings, setSettings]
+  )
+
   const saveDictationModel = useCallback(
     async (id: ModelId) => {
       const api = window.mystt
@@ -123,7 +135,12 @@ export function HomeView(props: {
         <StatusGrid settings={settings} />
       </div>
 
-      <CloudDictationCard settings={settings} onSaveKey={saveApiKey} onSetEngine={saveEngine} />
+      <CloudDictationCard
+        settings={settings}
+        onSaveKey={saveApiKey}
+        onSetEngine={saveEngine}
+        onTerminalNlChange={saveTerminalNl}
+      />
 
       <LocalSttCard settings={settings} onSelectModel={saveDictationModel} />
 

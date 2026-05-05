@@ -17,7 +17,6 @@ export const IPC_CHANNELS = {
   RUNTIME_REMOVE: 'mystt:runtime:remove',
   RUNTIME_PROGRESS: 'mystt:runtime:progress',
   DOWNLOAD_CANCEL: 'mystt:download:cancel',
-  HOTKEY_SET: 'mystt:hotkey:set',
   DICTATION_STARTED: 'mystt:dictation:started',
   DICTATION_COMPLETED: 'mystt:dictation:completed',
   SETTINGS_GET: 'mystt:settings:get',
@@ -75,12 +74,6 @@ export const JobErrorPayloadSchema = z.object({
 
 export type JobErrorPayload = z.infer<typeof JobErrorPayloadSchema>
 
-export const HotkeySetPayloadSchema = z.object({
-  accelerator: z.string(),
-})
-
-export type HotkeySetPayload = z.infer<typeof HotkeySetPayloadSchema>
-
 /** Payload main → renderer when dictation lifecycle events occur */
 export const DictationStartedPayloadSchema = z.object({
   at: z.number(),
@@ -102,10 +95,12 @@ export type DictationErrorPayload = z.infer<typeof DictationErrorPayloadSchema>
 
 const DictationModelIdSchema = z.enum(['tiny', 'base', 'small'])
 
+/** Fixed push-to-talk chord (physical Ctrl + Space). Not user-configurable. */
+export const DICTATION_HOTKEY_ACCELERATOR = 'Control+Space' as const
+
 const AppSettingsInnerSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']).default('system'),
-  /** Electron accelerator grammar; default avoids IME conflicts on Windows (SPEC §15). */
-  hotkeyAccelerator: z.string().default('CommandOrControl+Shift+.'),
+  hotkeyAccelerator: z.literal(DICTATION_HOTKEY_ACCELERATOR).default(DICTATION_HOTKEY_ACCELERATOR),
   defaultModelId: DictationModelIdSchema.default('base'),
   dictationMaxSec: z.number().min(5).max(300).default(60),
   /** Hotkey engine: cloud OpenAI vs local whisper.cpp */
@@ -114,6 +109,11 @@ const AppSettingsInnerSchema = z.object({
   dictationModelId: DictationModelIdSchema.default('tiny'),
   dictationLanguage: z.string().optional(),
   dictationThreads: z.number().int().min(1).max(32).optional(),
+  /**
+   * Windows: when the focused window is a terminal, rewrite speech to a shell command via OpenAI (requires API key).
+   * Unsafe suggestions are blocked before paste.
+   */
+  terminalNlCommandEnabled: z.boolean().default(true),
 })
 
 function migrateLegacyCloudDictation(raw: unknown): unknown {
@@ -126,8 +126,17 @@ function migrateLegacyCloudDictation(raw: unknown): unknown {
   return o
 }
 
-/** Migrate legacy `cloudDictationEnabled` → `dictationEngine` when absent. */
-export const AppSettingsSchema = z.preprocess(migrateLegacyCloudDictation, AppSettingsInnerSchema)
+function migrateFixedHotkey(raw: unknown): unknown {
+  const migrated = migrateLegacyCloudDictation(raw)
+  if (typeof migrated !== 'object' || migrated === null) return migrated
+  return {
+    ...(migrated as Record<string, unknown>),
+    hotkeyAccelerator: DICTATION_HOTKEY_ACCELERATOR,
+  }
+}
+
+/** Migrate legacy flags and normalize dictation hotkey to {@link DICTATION_HOTKEY_ACCELERATOR}. */
+export const AppSettingsSchema = z.preprocess(migrateFixedHotkey, AppSettingsInnerSchema)
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
 
@@ -138,7 +147,7 @@ export function isCloudDictationEnabled(settings: Pick<AppSettings, 'dictationEn
 
 /** Returned by SETTINGS_GET — settings plus metadata for UI. */
 export const SettingsStateSchema = z.preprocess(
-  migrateLegacyCloudDictation,
+  migrateFixedHotkey,
   AppSettingsInnerSchema.extend({
     hasOpenAiApiKey: z.boolean(),
   })

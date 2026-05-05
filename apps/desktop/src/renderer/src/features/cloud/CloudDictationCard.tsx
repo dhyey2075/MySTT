@@ -7,6 +7,7 @@ export function CloudDictationCard(props: {
   settings: SettingsState | null
   onSaveKey: (key: string | null) => Promise<void>
   onSetEngine: (engine: 'cloud' | 'local') => Promise<void>
+  onTerminalNlChange: (enabled: boolean) => Promise<void>
 }) {
   const { settings } = props
   const [draft, setDraft] = useState('')
@@ -56,6 +57,38 @@ export function CloudDictationCard(props: {
           Local (offline)
         </button>
       </nav>
+
+      <section className="stack-gap" style={{ marginTop: 14 }}>
+        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 650 }}>Terminal assistant (Windows)</h3>
+        <p className="text-muted" style={{ margin: 0, maxWidth: '62ch' }}>
+          When Command Prompt, PowerShell, Windows Terminal, or another supported console is focused,
+          dictation can be rewritten into a short shell command using your OpenAI API key (chat
+          model — billed separately from Whisper). Heuristic filters block many destructive patterns;
+          always review before pressing Enter.
+        </p>
+        <label
+          style={{
+            display: 'flex',
+            gap: 12,
+            alignItems: 'flex-start',
+            cursor: props.settings?.hasOpenAiApiKey ? 'pointer' : 'not-allowed',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={props.settings?.terminalNlCommandEnabled ?? true}
+            disabled={!props.settings?.hasOpenAiApiKey}
+            onChange={(e) => void props.onTerminalNlChange(e.target.checked)}
+            style={{ marginTop: 3 }}
+          />
+          <span>Convert speech to shell commands when a terminal is focused</span>
+        </label>
+        {!props.settings?.hasOpenAiApiKey ? (
+          <p className="text-faint" style={{ margin: 0 }}>
+            Add an OpenAI API key above to enable conversion (works alongside Local offline dictation).
+          </p>
+        ) : null}
+      </section>
 
       <div
         style={{

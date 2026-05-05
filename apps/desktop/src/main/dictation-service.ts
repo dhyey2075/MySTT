@@ -2,17 +2,97 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { IPC_CHANNELS, type SettingsState } from '@mystt/ipc-contract'
+import { DICTATION_HOTKEY_ACCELERATOR, IPC_CHANNELS, type SettingsState } from '@mystt/ipc-contract'
 import type { UserDirs } from '@mystt/core-pipeline'
 import { transcribeLocalDictation } from './local-whisper'
 import { readOpenAiApiKey } from './secrets'
 import { transcribeWithOpenAI } from './openai-whisper'
 import { backupClipboardText, pasteTextWindows } from './paste'
+import { resolveTerminalAwarePasteText } from './terminal-dictation'
 
 import { EventType, UiohookKey, uIOhook } from 'uiohook-napi'
 import type { UiohookKeyboardEvent } from 'uiohook-napi'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+/** Parsed Electron-style accelerator for uiohook matching. */
+type HotkeyMask = {
+  keycode: number
+  ctrl: boolean
+  meta: boolean
+  shift: boolean
+  alt: boolean
+}
+
+const UIOHOOK_BY_NAME: Record<string, number> = {
+  Space: UiohookKey.Space,
+  Period: UiohookKey.Period,
+}
+
+function tokenToKeycode(token: string): number | undefined {
+  const named = UIOHOOK_BY_NAME[token]
+  if (named !== undefined) return named
+  if (token.length !== 1) return undefined
+  const map = UiohookKey as unknown as Record<string, number>
+  const ch = token
+  if (/^[0-9]$/.test(ch) && map[ch] !== undefined) return map[ch]
+  const upper = ch.toUpperCase()
+  if (/^[A-Z]$/.test(upper) && map[upper] !== undefined) return map[upper]
+  return undefined
+}
+
+function parseHotkeyAccelerator(accelerator: string): HotkeyMask | null {
+  const parts = accelerator
+    .split('+')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  if (parts.length === 0) return null
+  const keyToken = parts[parts.length - 1]!
+  const keycode = tokenToKeycode(keyToken)
+  if (keycode === undefined) return null
+
+  let ctrl = false
+  let meta = false
+  let shift = false
+  let alt = false
+  const darwin = process.platform === 'darwin'
+  for (const m of parts.slice(0, -1)) {
+    switch (m) {
+      case 'CommandOrControl':
+        if (darwin) meta = true
+        else ctrl = true
+        break
+      case 'Control':
+      case 'Ctrl':
+        ctrl = true
+        break
+      case 'Command':
+      case 'Cmd':
+        meta = true
+        break
+      case 'Shift':
+        shift = true
+        break
+      case 'Alt':
+      case 'Option':
+        alt = true
+        break
+      default:
+        return null
+    }
+  }
+  return { keycode, ctrl, meta, shift, alt }
+}
+
+function eventMatchesHotkeyDown(e: UiohookKeyboardEvent, mask: HotkeyMask): boolean {
+  return (
+    e.keycode === mask.keycode &&
+    e.ctrlKey === mask.ctrl &&
+    e.metaKey === mask.meta &&
+    e.shiftKey === mask.shift &&
+    e.altKey === mask.alt
+  )
+}
 
 export type DictationDeps = {
   getSettingsState: () => SettingsState
@@ -82,10 +162,15 @@ export function registerCaptureIpc(
 export function startDictationHotkey(deps: DictationDeps): () => void {
   stopDictationHotkey()
 
+  const mask = parseHotkeyAccelerator(DICTATION_HOTKEY_ACCELERATOR)
+  if (!mask) {
+    deps.notifyUser('MySTT', 'Invalid hotkey in settings — could not register shortcut.')
+    return () => {}
+  }
+
   const onKeydown = (e: UiohookKeyboardEvent) => {
     if (e.type !== EventType.EVENT_KEY_PRESSED) return
-    if (e.keycode !== UiohookKey.Period) return
-    if (!e.ctrlKey || !e.shiftKey || e.altKey) return
+    if (!eventMatchesHotkeyDown(e, mask)) return
     if (armed) return
 
     const state = deps.getSettingsState()
@@ -110,7 +195,7 @@ export function startDictationHotkey(deps: DictationDeps): () => void {
 
   const onKeyup = (e: UiohookKeyboardEvent) => {
     if (e.type !== EventType.EVENT_KEY_RELEASED) return
-    if (e.keycode !== UiohookKey.Period) return
+    if (e.keycode !== mask.keycode) return
     if (!armed) return
 
     armed = false
@@ -183,10 +268,24 @@ export async function handleCapturedBlob(
         return
       }
 
+      const resolved = await resolveTerminalAwarePasteText({
+        settings: state,
+        credentialDir: deps.getCredentialDir(),
+        transcript: result.text,
+        notifyUser: deps.notifyUser,
+      })
+      if (!resolved.ok) {
+        deps.broadcastDictation(IPC_CHANNELS.DICTATION_ERROR, {
+          code: resolved.code,
+          message: resolved.message,
+        })
+        return
+      }
+
       const backup = backupClipboardText()
-      pasteTextWindows(result.text, backup)
+      pasteTextWindows(resolved.text, backup)
       deps.broadcastDictation(IPC_CHANNELS.DICTATION_COMPLETED, {
-        text: result.text,
+        text: resolved.text,
         durationMs: Date.now() - started,
       })
     } catch (err) {
@@ -225,10 +324,24 @@ export async function handleCapturedBlob(
       return
     }
 
+    const resolved = await resolveTerminalAwarePasteText({
+      settings: state,
+      credentialDir: deps.getCredentialDir(),
+      transcript: result.text,
+      notifyUser: deps.notifyUser,
+    })
+    if (!resolved.ok) {
+      deps.broadcastDictation(IPC_CHANNELS.DICTATION_ERROR, {
+        code: resolved.code,
+        message: resolved.message,
+      })
+      return
+    }
+
     const backup = backupClipboardText()
-    pasteTextWindows(result.text, backup)
+    pasteTextWindows(resolved.text, backup)
     deps.broadcastDictation(IPC_CHANNELS.DICTATION_COMPLETED, {
-      text: result.text,
+      text: resolved.text,
       durationMs: Date.now() - started,
     })
   } catch (err) {

@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url'
 
 import {
   AppSettingsSchema,
-  HotkeySetPayloadSchema,
   IPC_CHANNELS,
   JobStartPayloadSchema,
   type AppSettings,
@@ -66,6 +65,13 @@ function saveSettingsDisk(next: AppSettings): void {
   const path = join(userDirs.root, 'settings.json')
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, JSON.stringify(next, null, 2), 'utf8')
+}
+
+/** Rewrite settings.json so legacy `hotkeyAccelerator` values are replaced on disk. */
+function persistNormalizedSettings(): void {
+  const path = join(userDirs.root, 'settings.json')
+  if (!existsSync(path)) return
+  saveSettingsDisk(loadSettingsDisk())
 }
 
 function loadSettingsState(): SettingsState {
@@ -260,14 +266,6 @@ function registerIpc() {
     return loadSettingsState()
   })
 
-  ipcMain.handle(IPC_CHANNELS.HOTKEY_SET, (_event, raw: unknown) => {
-    const { accelerator } = HotkeySetPayloadSchema.parse(raw)
-    const cur = loadSettingsDisk()
-    saveSettingsDisk({ ...cur, hotkeyAccelerator: accelerator })
-    restartDictationHotkey()
-    return loadSettingsState()
-  })
-
   registerRuntimeIpc({
     getMainWindow: () => mainWindow,
     userDirs,
@@ -281,6 +279,7 @@ function registerIpc() {
 
 app.whenReady().then(async () => {
   userDirs = ensureUserDirs(app.getPath('userData'))
+  persistNormalizedSettings()
   Menu.setApplicationMenu(null)
 
   registerIpc()
