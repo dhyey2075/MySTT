@@ -1,4 +1,5 @@
 import type { ModelId, SettingsState } from '@mystt/ipc-contract'
+import { BrandMark } from '@mystt/ui'
 import { useCallback, useState } from 'react'
 
 import { useLocalRuntime } from './useLocalRuntime'
@@ -81,13 +82,16 @@ export function LocalSttCard(props: {
 
   return (
     <section className="glass stack-gap" style={{ padding: '22px 22px' }}>
-      <div>
-        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Local STT</h2>
-        <p className="text-muted" style={{ margin: '8px 0 0' }}>
-          Offline dictation needs two different things: <strong>runtime programs</strong> (FFmpeg +
-          whisper-cli.exe) and a <strong>GGML model</strong> (tiny / base / small weights). Model
-          downloads do not install whisper-cli — use Install local engine for the programs.
-        </p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+        <BrandMark title="MySTT" size={36} className="brand-mark-img brand-mark-img--card" />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Local STT</h2>
+          <p className="text-muted" style={{ margin: '8px 0 0' }}>
+            Offline dictation needs two different things: <strong>runtime programs</strong> (FFmpeg +
+            whisper-cli.exe) and a <strong>GGML model</strong> (tiny / base / small weights). Model
+            downloads do not install whisper-cli — use Install local engine for the programs.
+          </p>
+        </div>
       </div>
 
       <div className="section-title" style={{ marginBottom: 6 }}>

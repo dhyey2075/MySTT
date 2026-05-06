@@ -30,8 +30,9 @@ export function LandingNav() {
   return (
     <header className="relative z-10 w-full px-6 pb-8 pt-8 md:px-10">
       <div className="mx-auto flex max-w-5xl items-center justify-between">
-        <a href="#" className="font-sans text-lg font-semibold tracking-tight text-foreground md:text-xl">
-          {site.name}
+        <a href="#" className="inline-flex items-center gap-2.5 font-sans text-lg font-semibold tracking-tight text-foreground md:text-xl">
+          <img src="/logo.png" width={36} height={36} alt="" className="size-9 shrink-0 rounded-md object-contain" />
+          <span>{site.name}</span>
         </a>
         <nav className="flex items-center gap-6 md:gap-8">
           <ExternalLink href={site.releasesUrl} className="hidden text-sm sm:inline">

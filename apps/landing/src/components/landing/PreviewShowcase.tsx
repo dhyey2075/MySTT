@@ -16,7 +16,8 @@ export function PreviewShowcase() {
               aria-hidden
             />
             {/* Floating pill */}
-            <div className="relative z-10 flex h-14 min-w-[200px] max-w-[min(90%,320px)] animate-gradient-shift items-center justify-center rounded-full bg-zinc-900/90 px-8 shadow-2xl ring-1 ring-violet-500/30 backdrop-blur-sm md:h-16">
+            <div className="relative z-10 flex h-14 min-w-[200px] max-w-[min(90%,320px)] animate-gradient-shift items-center justify-center gap-3 rounded-full bg-zinc-900/90 px-8 shadow-2xl ring-1 ring-violet-500/30 backdrop-blur-sm md:h-16">
+              <img src="/logo.png" width={28} height={28} alt="" className="size-7 shrink-0 rounded-md object-contain" />
               <span className="font-mono text-xs font-medium text-zinc-100/90 md:text-sm">Listening · local engine</span>
             </div>
           </div>

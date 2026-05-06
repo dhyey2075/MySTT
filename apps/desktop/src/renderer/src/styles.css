@@ -481,8 +481,36 @@ body {
   width: 28px;
   height: 28px;
   display: block;
-  filter: invert(1) brightness(1.15);
-  opacity: 0.95;
+  border-radius: 6px;
+  object-fit: contain;
+}
+
+.brand-mark-img--hero {
+  width: 44px;
+  height: 44px;
+}
+
+.brand-mark-img--placeholder {
+  width: 40px;
+  height: 40px;
+}
+
+.brand-mark-img--card {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.hero-card__brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.placeholder-view__brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
 .switch {

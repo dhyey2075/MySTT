@@ -1,3 +1,5 @@
+import { BrandMark } from '@mystt/ui'
+
 export type HeroPhase = 'idle' | 'recording' | 'processing' | 'success' | 'error'
 
 export function HeroCard(props: {
@@ -46,6 +48,9 @@ export function HeroCard(props: {
   return (
     <section className="glass hero-card">
       <div className="hero-card__inner">
+        <div className="hero-card__brand">
+          <BrandMark title="MySTT" size={44} className="brand-mark-img brand-mark-img--hero" />
+        </div>
         <h1 className="hero-card__title">Dictation</h1>
         {subtitle ? <p className="hero-card__subtitle">{subtitle}</p> : null}
 

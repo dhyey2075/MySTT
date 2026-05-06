@@ -29,6 +29,13 @@ export function HeroSection() {
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col items-center px-6 pb-16 pt-4 text-center md:pb-20 md:pt-8">
+      <img
+        src="/logo.png"
+        width={88}
+        height={88}
+        alt=""
+        className="mb-6 size-[5.5rem] shrink-0 rounded-xl object-contain shadow-md ring-1 ring-border/60"
+      />
       <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 font-mono text-xs uppercase tracking-wider text-muted-foreground">
         <Sparkles className="size-3.5 text-primary" aria-hidden />
         Offline-first · Optional cloud

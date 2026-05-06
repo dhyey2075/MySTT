@@ -1,4 +1,5 @@
 import type { SettingsState } from '@mystt/ipc-contract'
+import { BrandMark } from '@mystt/ui'
 import { useCallback, useState } from 'react'
 
 import { MaskedSecret } from '../../components/MaskedSecret'
@@ -29,12 +30,15 @@ export function CloudDictationCard(props: {
 
   return (
     <section className="glass stack-gap" style={{ padding: '22px 22px' }}>
-      <div>
-        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Dictation engine</h2>
-        <p className="text-muted" style={{ margin: '8px 0 0', maxWidth: '62ch' }}>
-          Choose cloud (OpenAI Whisper API) or local on-device whisper.cpp. The global hotkey uses the
-          selected engine.
-        </p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+        <BrandMark title="MySTT" size={36} className="brand-mark-img brand-mark-img--card" />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>Dictation engine</h2>
+          <p className="text-muted" style={{ margin: '8px 0 0', maxWidth: '62ch' }}>
+            Choose cloud (OpenAI Whisper API) or local on-device whisper.cpp. The global hotkey uses the
+            selected engine.
+          </p>
+        </div>
       </div>
 
       <nav className="shell-tabs" aria-label="Dictation engine" style={{ marginTop: 4 }}>
